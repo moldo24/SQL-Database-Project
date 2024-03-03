@@ -1,0 +1,15 @@
+1.
+SELECT  a.first_name "First Name", a.last_name "Last Name" , b.department_name  "Department Name"
+FROM  employees a LEFT OUTER JOIN departments b ON a.department_id = b.department_id;
+2.
+SELECT  a.first_name "First Name", a.last_name "Last Name" , b.department_name  "Department Name"
+FROM  employees a RIGHT OUTER JOIN departments b ON a.department_id = b.department_id;
+3.
+SELECT  a.first_name "First Name", a.last_name "Last Name" , b.department_name  "Department Name"
+FROM  employees a FULL OUTER JOIN departments b ON a.department_id = b.department_id;
+4.
+SELECT cl.first_name, cl.last_name, ev.event_date, ev.description
+FROM  d_clients cl LEFT OUTER JOIN d_events ev ON cl.client_number = ev.client_number;
+5.
+SELECT f_shifts.description,f_shift_assignments.shift_assign_date
+from f_shifts JOIN f_shift_assignments ON f_shifts.code=f_shift_assignments.code;.

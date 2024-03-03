@@ -1,0 +1,553 @@
+3)B
+DECLARE
+ e_div_exception EXCEPTION;
+ PRAGMA EXCEPTION_INIT(e_div_exception, -01476);
+ v_number NUMBER(6, 2) := 100;
+ v_region_id regions.region_id%TYPE;
+ v_region_name regions.region_name%TYPE;
+BEGIN
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+ FROM regions
+ WHERE region_id = 1;
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+ v_number := v_number / 0;
+EXCEPTION
+ WHEN e_div_exception THEN
+ DBMS_OUTPUT.PUT_LINE('The division with 0 is not possible');
+END;
+
+Region: 1 is: Europe
+The division with 0 is not possible
+
+Statement processed.
+
+The exception is handled and the rest of the code is executed.
+3.C
+DECLARE
+ e_div_exception EXCEPTION;
+ PRAGMA EXCEPTION_INIT(e_div_exception, -01476);
+ v_number NUMBER(6, 2) := 100;
+ v_region_id regions.region_id%TYPE;
+ v_region_name regions.region_name%TYPE;
+BEGIN
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+ FROM regions
+ WHERE region_id = 29;
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+ v_number := v_number / 0;
+EXCEPTION
+ WHEN e_div_exception THEN
+ DBMS_OUTPUT.PUT_LINE('The division with 0 is not possible');
+END;
+
+ORA-01403: no data found
+
+We didn't handle this exception.
+3.D
+DECLARE
+ e_div_exception EXCEPTION;
+ PRAGMA EXCEPTION_INIT(e_div_exception, -01476);
+ v_number NUMBER(6, 2) := 100;
+ v_region_id regions.region_id%TYPE;
+ v_region_name regions.region_name%TYPE;
+BEGIN
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+ FROM regions
+ WHERE region_id = 29;
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+ v_number := v_number / 0;
+EXCEPTION
+ WHEN e_div_exception THEN
+ DBMS_OUTPUT.PUT_LINE('The division with 0 is not possible');
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('There is no data');
+END;
+
+4.B
+
+DECLARE
+ e_curs_exception EXCEPTION;
+ PRAGMA EXCEPTION_INIT(e_curs_exception, -01001);
+ CURSOR regions_curs IS
+ SELECT * FROM regions
+ WHERE region_id < 20
+ ORDER BY region_id;
+ regions_rec regions_curs%ROWTYPE;
+ v_count NUMBER(6);
+BEGIN
+ LOOP
+ FETCH regions_curs INTO regions_rec;
+ EXIT WHEN regions_curs%NOTFOUND;
+ DBMS_OUTPUT.PUT_LINE('Region: ' || regions_rec.region_id
+|| ' Name: ' || regions_rec.region_name);
+ END LOOP;
+ CLOSE regions_curs;
+ SELECT COUNT(*) INTO v_count
+ FROM regions
+ WHERE region_id = 1;
+ DBMS_OUTPUT.PUT_LINE('The number of regions is: ' || v_count);
+EXCEPTION
+ WHEN e_curs_exception THEN
+ DBMS_OUTPUT.PUT_LINE('Invalid cursor');
+END;
+
+4.C
+DECLARE
+ e_curs_exception EXCEPTION;
+ PRAGMA EXCEPTION_INIT(e_curs_exception, -01001);
+ CURSOR regions_curs IS
+ SELECT * FROM regions
+ WHERE region_id < 20
+ ORDER BY region_id;
+ regions_rec regions_curs%ROWTYPE;
+ v_count NUMBER(6);
+BEGIN
+ OPEN regions_curs;
+ LOOP
+ FETCH regions_curs INTO regions_rec;
+ EXIT WHEN regions_curs%NOTFOUND;
+ DBMS_OUTPUT.PUT_LINE('Region: ' || regions_rec.region_id
+|| ' Name: ' || regions_rec.region_name);
+ END LOOP;
+ CLOSE regions_curs;
+ SELECT COUNT(*) INTO v_count
+ FROM regions
+ WHERE region_id = 1;
+ DBMS_OUTPUT.PUT_LINE('The number of regions is: ' || v_count);
+EXCEPTION
+ WHEN e_curs_exception THEN
+ DBMS_OUTPUT.PUT_LINE('Invalid cursor');
+END;
+
+Homelearn advanced pl sqlPL/SQL 7-2: Trapping Oracle Server Exceptions
+PL/SQL 7-2: Trapping Oracle Server Exceptions
+ProgrammerNovember 21, 2020
+ Database Programming with PL/SQL
+
+7-2: Trapping Oracle Server Exceptions
+
+Practice Activities
+
+Vocabulary
+
+Each of these has a predefined name. For example, if the error ORA-01403 occurs when no rows are retrieved from the database in a SELECT statement, then PL/SQL raises the predefined exception-name NO_DATA_FOUND. - Predefined oracle server errors
+
+Tells the compiler to associate an exception name with an Oracle error number. That allows you to refer to any Oracle Server exception by name and to write a specific handler for it. - PRAGMA EXCEPTION_INIT
+
+Returns character data containing the message associated with the error number - SQLERRM
+
+Each of these has a standard Oracle error number (ORA-nnnnn) and error message, but not a predefined name. We declare our own names for these so that we can reference these names in the exception section. - Non-predefined Oracle server errors
+
+Returns the numeric value for the error code (You can assign it to a NUMBER variable.) - SQLCODE
+
+Try It / Solve It
+
+1. What are the three types of exceptions that can be handled in a PL/SQL block?
+
+Predefined oracle server error
+
+Non-predefined oracle server error
+
+User-defined error
+
+2. What is the difference in how each of these three types of exceptions is handled in the PL/SQL
+
+block?
+
+Predefined oracle server errors are errors that have names and can be called in the exception block.
+
+Non-predefined oracle server errors are errors that do not have names but have codes and messages and can be given names by the user in the declaration section and called in the exception block.
+
+User-defined errors are either non-predefined oracle server errors named by user or not errors but situations that the user considers as an error and that shouldn't happen.
+
+3. Enter and run the following PL/SQL block. Look at the output and answer the following questions:
+
+DECLARE
+
+ v_number NUMBER(6, 2) := 100;
+
+ v_region_id regions.region_id%TYPE;
+
+ v_region_name regions.region_name%TYPE;
+
+BEGIN
+
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+
+ FROM regions
+
+ WHERE region_id = 1;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+
+ v_number := v_number / 0;
+
+END;
+
+A. What error message is displayed and why?
+
+ORA-01476: divisor is equal to zero
+
+Because we try to divide v_number by 0. When there's an error that  is not handled, the entire program is not executed.
+
+B. Modify the block to handle this exception and re-run your code. Now what happens and why?
+
+DECLARE
+
+ e_div_exception EXCEPTION;
+
+ PRAGMA EXCEPTION_INIT(e_div_exception, -01476);
+
+ v_number NUMBER(6, 2) := 100;
+
+ v_region_id regions.region_id%TYPE;
+
+ v_region_name regions.region_name%TYPE;
+
+BEGIN
+
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+
+ FROM regions
+
+ WHERE region_id = 1;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+
+ v_number := v_number / 0;
+
+EXCEPTION
+
+ WHEN e_div_exception THEN
+
+ DBMS_OUTPUT.PUT_LINE('The division with 0 is not possible');
+
+END;
+
+
+
+Region: 1 is: Europe
+
+The division with 0 is not possible
+
+
+
+Statement processed.
+
+
+
+The exception is handled and the rest of the code is executed.
+
+C. Modify the block again to change the WHERE clause to region_id = 29. Re-run the block. Now what
+
+happens and why?
+
+DECLARE
+
+ e_div_exception EXCEPTION;
+
+ PRAGMA EXCEPTION_INIT(e_div_exception, -01476);
+
+ v_number NUMBER(6, 2) := 100;
+
+ v_region_id regions.region_id%TYPE;
+
+ v_region_name regions.region_name%TYPE;
+
+BEGIN
+
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+
+ FROM regions
+
+ WHERE region_id = 29;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+
+ v_number := v_number / 0;
+
+EXCEPTION
+
+ WHEN e_div_exception THEN
+
+ DBMS_OUTPUT.PUT_LINE('The division with 0 is not possible');
+
+END;
+
+
+
+ORA-01403: no data found
+
+
+
+We didn't handle this exception.
+
+D. Modify the block again to handle the latest exception and re-run your code.
+
+DECLARE
+
+ e_div_exception EXCEPTION;
+
+ PRAGMA EXCEPTION_INIT(e_div_exception, -01476);
+
+ v_number NUMBER(6, 2) := 100;
+
+ v_region_id regions.region_id%TYPE;
+
+ v_region_name regions.region_name%TYPE;
+
+BEGIN
+
+ SELECT region_id, region_name INTO v_region_id, v_region_name
+
+ FROM regions
+
+ WHERE region_id = 29;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || v_region_id || ' is: ' || v_region_name);
+
+ v_number := v_number / 0;
+
+EXCEPTION
+
+ WHEN e_div_exception THEN
+
+ DBMS_OUTPUT.PUT_LINE('The division with 0 is not possible');
+
+ WHEN NO_DATA_FOUND THEN
+
+ DBMS_OUTPUT.PUT_LINE('There is no data');
+
+END;
+
+4. Enter and run the following PL/SQL block. Look at the output and answer the following questions:
+
+DECLARE
+
+ CURSOR regions_curs IS
+
+ SELECT * FROM regions
+
+ WHERE region_id < 20
+
+ ORDER BY region_id;
+
+ regions_rec regions_curs%ROWTYPE;
+
+ v_count NUMBER(6);
+
+BEGIN
+
+ LOOP
+
+ FETCH regions_curs INTO regions_rec;
+
+ EXIT WHEN regions_curs%NOTFOUND;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || regions_rec.region_id
+
+|| ' Name: ' || regions_rec.region_name);
+
+ END LOOP;
+
+ CLOSE regions_curs;
+
+ SELECT COUNT(*) INTO v_count
+
+ FROM regions
+
+ WHERE region_id = 1;
+
+ DBMS_OUTPUT.PUT_LINE('The number of regions is: ' || v_count);
+
+END;
+
+A. What happens and why?
+
+ORA-01001: invalid cursor
+
+
+
+We didn't open the cursor so we can't fetch and close it.
+
+B. Modify the block to handle the exception and re-run your code.
+
+DECLARE
+
+ e_curs_exception EXCEPTION;
+
+ PRAGMA EXCEPTION_INIT(e_curs_exception, -01001);
+
+ CURSOR regions_curs IS
+
+ SELECT * FROM regions
+
+ WHERE region_id < 20
+
+ ORDER BY region_id;
+
+ regions_rec regions_curs%ROWTYPE;
+
+ v_count NUMBER(6);
+
+BEGIN
+
+ LOOP
+
+ FETCH regions_curs INTO regions_rec;
+
+ EXIT WHEN regions_curs%NOTFOUND;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || regions_rec.region_id
+
+|| ' Name: ' || regions_rec.region_name);
+
+ END LOOP;
+
+ CLOSE regions_curs;
+
+ SELECT COUNT(*) INTO v_count
+
+ FROM regions
+
+ WHERE region_id = 1;
+
+ DBMS_OUTPUT.PUT_LINE('The number of regions is: ' || v_count);
+
+EXCEPTION
+
+ WHEN e_curs_exception THEN
+
+ DBMS_OUTPUT.PUT_LINE('Invalid cursor');
+
+END;
+
+C. Modify the block again to add an OPEN statement for the cursor, and re-run your code. Now what
+
+happens and why? Remember that region_id = 1 does not exist.
+
+DECLARE
+
+ e_curs_exception EXCEPTION;
+
+ PRAGMA EXCEPTION_INIT(e_curs_exception, -01001);
+
+ CURSOR regions_curs IS
+
+ SELECT * FROM regions
+
+ WHERE region_id < 20
+
+ ORDER BY region_id;
+
+ regions_rec regions_curs%ROWTYPE;
+
+ v_count NUMBER(6);
+
+BEGIN
+
+ OPEN regions_curs;
+
+ LOOP
+
+ FETCH regions_curs INTO regions_rec;
+
+ EXIT WHEN regions_curs%NOTFOUND;
+
+ DBMS_OUTPUT.PUT_LINE('Region: ' || regions_rec.region_id
+
+|| ' Name: ' || regions_rec.region_name);
+
+ END LOOP;
+
+ CLOSE regions_curs;
+
+ SELECT COUNT(*) INTO v_count
+
+ FROM regions
+
+ WHERE region_id = 1;
+
+ DBMS_OUTPUT.PUT_LINE('The number of regions is: ' || v_count);
+
+EXCEPTION
+
+ WHEN e_curs_exception THEN
+
+ DBMS_OUTPUT.PUT_LINE('Invalid cursor');
+
+END;
+
+The code runs without exceptions.
+If we don't have anything in region_id = 1, the count will be 0, there will be no error.
+
+5.B
+DECLARE
+ v_language_id wf_languages.language_id%TYPE;
+ v_language_name wf_languages.language_name%TYPE;
+BEGIN
+ SELECT language_id, language_name INTO v_language_id, v_language_name
+ FROM wf_languages
+ WHERE LOWER(language_name) LIKE 'Al%'; -- for example 'ab%'
+ INSERT INTO wf_languages(language_id, language_name)
+ VALUES(80, null);
+EXCEPTION
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('No data found by the statement');
+ WHEN TOO_MANY_ROWS THEN
+ DBMS_OUTPUT.PUT_LINE('There are too many rows returned by the statement');
+ WHEN DUP_VAL_ON_INDEX THEN
+ DBMS_OUTPUT.PUT_LINE('Duplicate value on index');
+END;
+
+
+ORA-01400: cannot insert NULL into ("RO_A851_SQL_S02"."WF_LANGUAGES"."LANGUAGE_NAME")
+We didn't handle this exception.
+
+5.C
+DECLARE
+ e_null_not_allowed EXCEPTION;
+ PRAGMA EXCEPTION_INIT(e_null_not_allowed, -01400);
+ v_language_id wf_languages.language_id%TYPE;
+ v_language_name wf_languages.language_name%TYPE;
+BEGIN
+ SELECT language_id, language_name INTO v_language_id, v_language_name
+ FROM wf_languages
+ WHERE LOWER(language_name) LIKE 'al%'; -- for example 'ab%'
+ INSERT INTO wf_languages(language_id, language_name)
+ VALUES(80, null);
+EXCEPTION
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('No data found by the statement');
+ WHEN TOO_MANY_ROWS THEN
+ DBMS_OUTPUT.PUT_LINE('There are too many rows returned by the statement');
+ WHEN DUP_VAL_ON_INDEX THEN
+ DBMS_OUTPUT.PUT_LINE('Duplicate value on index');
+ WHEN  e_null_not_allowed THEN
+ DBMS_OUTPUT.PUT_LINE('You cant insert null');
+END;
+
+EXTENSION
+1.
+DECLARE
+ v_language_id wf_languages.language_id%TYPE;
+ v_language_name wf_languages.language_name%TYPE;
+ v_error_code NUMBER;
+ v_error_message VARCHAR2(255);
+BEGIN
+ SELECT language_id, language_name INTO v_language_id, v_language_name
+ FROM wf_languages
+ WHERE LOWER(language_name) LIKE 'al%'; -- for example 'ab%'
+ INSERT INTO wf_languages(language_id, language_name)
+ VALUES(80, null);
+EXCEPTION
+ WHEN OTHERS THEN
+ ROLLBACK;
+ v_error_code := SQLCODE;
+ v_error_message := SQLERRM;
+ INSERT INTO error_log 
+ VALUES (USER, SYSDATE, v_error_code, v_error_message);
+END;
+
+
+SELECT * FROM error_log;

@@ -1,0 +1,147 @@
+2)A
+CREATE OR REPLACE PROCEDURE find_area_pop
+(p_country_id IN wf_countries.country_id%TYPE, p_country_name OUT
+ wf_countries.country_name%TYPE,p_country_population OUT wf_countries.population%TYPE) IS
+BEGIN
+ SELECT country_name, population INTO p_country_name, p_country_population
+ FROM wf_countries
+ WHERE country_id = p_country_id;
+EXCEPTION
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('No country found');
+END find_area_pop;
+2.B
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+BEGIN
+ find_area_pop (2, v_country_name, v_country_population);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population);
+END;
+
+
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+BEGIN
+ find_area_pop (10, v_country_name, v_country_population);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population);
+END;
+2.C
+CREATE OR REPLACE PROCEDURE find_area_pop
+(p_country_id IN wf_countries.country_id%TYPE, p_country_name OUT wf_countries.country_name%TYPE,p_country_population OUT wf_countries.population%TYPE, p_density OUT NUMBER) IS
+BEGIN
+ SELECT country_name, population, population / area INTO p_country_name, p_country_population, p_density
+ FROM wf_countries
+ WHERE country_id = p_country_id;
+EXCEPTION
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('No country found');
+END find_area_pop;
+2.D
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+v_density NUMBER(3);
+BEGIN
+ find_area_pop (2, v_country_name, v_country_population, v_density);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population || ' ' || v_density);
+END;
+3.
+CREATE OR REPLACE PROCEDURE square
+(p_square IN OUT NUMBER) IS
+BEGIN
+ p_square := p_square * p_square;
+END square;
+
+
+
+DECLARE
+nr NUMBER(20);
+BEGIN
+ nr := 4;
+ square(nr);
+ DBMS_OUTPUT.PUT_LINE(nr);
+END;
+
+
+DECLARE
+nr NUMBER(20);
+BEGIN
+ nr := 7;
+ square(nr);
+ DBMS_OUTPUT.PUT_LINE(nr);
+END;
+
+DECLARE
+nr NUMBER(20);
+BEGIN
+ nr := -20;
+ square(nr);
+ DBMS_OUTPUT.PUT_LINE(nr);
+END;
+
+4.A
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+v_density NUMBER(3);
+BEGIN
+ find_area_pop (p_country_name => v_country_name, p_density => v_density, p_country_population => v_country_population,p_country_id => 2);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population || ' ' || v_density);
+END;
+4.B
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+v_density NUMBER(3);
+BEGIN
+ find_area_pop (v_country_population, v_density,  p_country_id => 2, p_country_name => v_country_name);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population || ' ' || v_density);
+END;
+
+Error
+4.C
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+v_density NUMBER(3);
+BEGIN
+ find_area_pop (2, v_country_name, p_density => v_density, p_country_population => v_country_population);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population || ' ' || v_density);
+END;
+
+5.
+Default can be declared with := or DEFAULT
+CREATE PROCEDURE def(v_a NUMBER := 0, v_b NUMBER DEFAULT 0
+It is useful when the call is missing those variables.
+
+6.
+SELECT country_id
+FROM wf_countries
+WHERE country_name = 'Romania';
+
+
+// country_id = 40
+
+
+CREATE OR REPLACE PROCEDURE find_area_pop
+(p_country_id IN wf_countries.country_id%TYPE DEFAULT 40, p_country_name OUT wf_countries.country_name%TYPE,p_country_population OUT wf_countries.population%TYPE, p_density OUT NUMBER) IS
+BEGIN
+ SELECT country_name, population, population / area INTO p_country_name, p_country_population, p_density
+ FROM wf_countries
+ WHERE country_id = p_country_id;
+EXCEPTION
+ WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('No country found');
+END find_area_pop;
+
+
+DECLARE
+v_country_name wf_countries.country_name%TYPE;
+v_country_population wf_countries.population%TYPE;
+v_density NUMBER(3);
+BEGIN
+ find_area_pop (p_country_name => v_country_name, p_density => v_density, p_country_population => v_country_population);
+ DBMS_OUTPUT.PUT_LINE(v_country_name || ' ' || v_country_population || ' ' || v_density);
+END;

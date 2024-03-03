@@ -1,0 +1,37 @@
+2.
+CREATE TABLE  graduate_candidates
+   (
+// 
+    student_id NUMBER(6,0),
+    last_name VARCHAR2(25) CONSTRAINT gcs_last_name_nn NOT NULL ENABLE,
+ first_name VARCHAR2(20) CONSTRAINT gcs_first_name_nn NOT NULL ENABLE,
+ credits NUMBER(5,2) CONSTRAINT gcs_credits_nn NOT NULL ENABLE,
+graduation_date DATE,
+//
+ CONSTRAINT gcs_std_id_pk PRIMARY KEY (student_id),
+ CONSTRAINT gcs_req_fk FOREIGN KEY(credits) REFERENCES requirements(credits) ENABLE     
+   
+  );
+3.
+DESCRIBE graduate_candidates;
+4.
+CREATE TABLE popa_table
+AS ( SELECT * FROM graduate_candidates);
+DESCRIBE popa_table;
+5..
+INSERT INTO popa_table (student_id, last_name, first_name, credits, graduation_date)
+Values(10,'Popa','he',60,NULL);
+6.
+SELECT * FROM user_tables;
+48 rows
+
+SELECT * FROM user_catalog;
+407
+SELECT DISTINCT(table_type) FROM user_catalog;
+3 rows
+
+
+SELECT * FROM user_objects;
+117 rows
+SELECT DISTINCT(object_type) FROM user_objects;
+6 rows

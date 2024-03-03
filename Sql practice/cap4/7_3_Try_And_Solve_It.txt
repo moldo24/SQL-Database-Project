@@ -1,0 +1,63 @@
+3)
+DECLARE
+BEGIN
+ UPDATE excep_emps 
+ SET salary = 10000
+ WHERE department_id = 40;
+ IF SQL%ROWCOUNT = 0 THEN
+ RAISE_APPLICATION_ERROR(-20202,'No employees in the department');
+ END IF;
+ EXCEPTION
+ WHEN OTHERS THEN
+ DBMS_OUTPUT.PUT_LINE(SQLCODE || '-' || SQLERRM);
+END;
+
+4.B
+DECLARE
+ v_dept_id excep_emps.department_id%TYPE;
+ v_count NUMBER;
+ e_no_emps_in_dept EXCEPTION;
+ e_no_rows_deleted EXCEPTION;
+BEGIN
+ v_dept_id := 40;
+ SELECT COUNT(*) INTO v_count
+ FROM excep_emps
+ WHERE department_id = v_dept_id;
+ IF v_count = 0 THEN
+  RAISE e_no_emps_in_dept;
+ END IF;
+ DBMS_OUTPUT.PUT_LINE('There are ' || v_count || ' employees');
+ DELETE FROM excep_emps
+ WHERE department_id = v_dept_id;
+ IF SQL%NOTFOUND THEN 
+ RAISE e_no_rows_deleted;
+ END IF;
+ DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT || ' employees were deleted');
+ ROLLBACK;
+EXCEPTION
+ WHEN e_no_emps_in_dept THEN
+ DBMS_OUTPUT.PUT_LINE('No employees in department');
+ WHEN e_no_rows_deleted THEN
+ DBMS_OUTPUT.PUT_LINE('No rows deleted');
+END;
+4.C
+DECLARE
+ v_dept_id excep_emps.department_id%TYPE;
+ v_count NUMBER;
+BEGIN
+ v_dept_id := 40;
+ SELECT COUNT(*) INTO v_count
+ FROM excep_emps
+ WHERE department_id = v_dept_id;
+ IF v_count = 0 THEN
+  RAISE_APPLICATION_ERROR(-20203,'No employees in this department');
+ END IF;
+ DBMS_OUTPUT.PUT_LINE('There are ' || v_count || ' employees');
+ DELETE FROM excep_emp
+ WHERE department_id = v_dept_id;
+ IF SQL%NOTFOUND THEN 
+ RAISE_APPLICATION_ERROR(-20204,'No employees were deleted');
+ END IF;
+ DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT || ' employees were deleted');
+ ROLLBACK;
+END;

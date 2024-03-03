@@ -1,0 +1,179 @@
+16-1 WORKING WITH SEQUENCES
+
+Vocabulary:
+
+CREATE SEQUENCE=Command that automatically generates sequential numbers
+SEQUENCES=Generates a numeric value
+NEXTVAL= Returns the next available sequence value
+INCREMENT BY= Specifies the interval between sequence numbers
+NOMAXVALUE=  Specifies a maximum value of 10^27 for an ascending sequence and 
+-1 for a descending sequence 
+CURRVAL=returns the current sequence value
+MINVALUE= specifies the minimum sequence value
+CYCLE/NOCYCLE=specifies whether the sequence continues to generate values
+ after reaching its maximum or minimum values
+NOMINALVALUE=specifies a minimum value of 1 for an ascending sequence and\
+ – (10^26) for a descending sequence 
+MAXVALUE/NOMAXVALUE=  specifies a maximum or default value the sequence can generate
+START WITH= specifies the first sequence number to be generated
+CACHE/ NOCACHE= specifies how many values the Server pre-allocates and keeps in memory
+
+Try It / Solve It
+
+1.CREATE TABLE seq_d_songs
+AS ( SELECT * FROM d_songs);
+DESCRIBE seq_d_songs;
+DESCRIBE d_songs;
+SELECT * FROM d_songs;
+SELECT * FROM seq_d_songs;
+
+2.CREATE SEQUENCE seq_d_songs_seq
+INCREMENT BY 2
+START WITH 100
+MAXVALUE 1000
+NOCYCLE
+NOCACHE;
+
+3.SELECT * FROM user_sequences WHERE sequence_name = UPPER('seq_d_songs_seq');
+
+4.INSERT INTO seq_d_songs (id,title,duration,artist,type_code)
+VALUES(seq_d_songs_seq.NEXTVAL,'Surfing Summer',NULL,NULL,12);
+INSERT INTO seq_d_songs (id,title,duration,artist,type_code)
+VALUES(seq_d_songs_seq.NEXTVAL,'Victory Victory','5 min',NULL,12);
+SELECT * FROM seq_d_songs ORDER BY id DESC;
+SELECT * FROM user_sequences WHERE sequence_name = UPPER('seq_d_songs_seq');
+
+5.SELECT seq_d_songs_seq.CURRVAL FROM DUAL;
+
+6.**din indrumator
+Cache sequences in memory provide faster access to 
+sequence values 
+• The cache is populated the first time you refer to the 
+sequence 
+• Each request for the next sequence value is retrieved 
+from the cached sequence 
+•After the last sequence value is used, the next request 
+for the sequence pulls another cache of sequences into 
+memory
+• 20 is the default number of sequence numbers cached
+
+7.A folosi optiunea CACHE da o performanta mai avantajoasa deoarece numerele sunt stocaget in in memorie.
+
+8.motive pentru care apar goluri in segunce:
+-**din indrumaotr:
+->Rolling back a statement containing a sequence.
+->System crash if system caches values in-memory
+->Same sequence being used by multiple tables.
+
+//////EXTREAS///////
+
+1.CREATE TABLE students(
+student_id NUMBER(6) CONSTRAINT sdt_sdt_id_pk PRIMARY KEY,
+fname VARCHAR2(12),
+lname VARCHAR(20),
+sex CHAR(1),
+major VARCHAR2(24)
+);
+
+2.CREATE SEQUENCE student_id_seq
+INCREMENT BY 1
+START WITH 1
+MAXVALUE 999999
+NOCYCLE
+NOCACHE;
+
+SELECT * FROM user_sequences WHERE sequence_name = UPPER('student_id_seq');
+
+3.INSERT INTO students(student_id ,fname,lname ,sex ,major )
+VALUES(student_id_seq.NEXTVAL,'Hemant','Kumar','M','Web');
+INSERT INTO students(student_id ,fname,lname ,sex ,major )
+VALUES(student_id_seq.NEXTVAL,'Hemant2','Kumar2','M','CyberSec');
+SELECT * FROM user_sequences WHERE sequence_name = UPPER('student_id_seq');
+
+SELECT * FROM students;
+
+
+
+16-2 INDEXEC And SYNONYMS
+
+Vocabulary:
+
+CONFIRMING INDEX=Confirms the existence of indexes from the USER_INDEXES 
+data dictionary vieW
+INDEX=Schema object that speeds up retrieval of rows
+CREATE PUBLIC SYNONYM=To refer to a table by another name to simplify access
+COMPOSITE INDEX=An index that you create on multiple columns in a table
+UNIQUE INDEX=The Oracle Server automatically creates this index when you 
+define a column in a table to have a PRIMARY KEY or a UNIQUE 
+KEY constrainT
+FUNCTION BASED INDEX=Stores the indexed values and uses the index based on a 
+SELECT statement to retrieve the dat
+DROP INDEX=Removes an index
+SYSNONYM=Gives alternative names to object
+
+
+Try It / Solve I
+
+1.DEFINTIE INDEX DIN INDRUMATOR=SALARY
+2.ROWID este o clausa folosita de indexuri pentru a accesa mai rapid un and particular.
+3.un index este creat automat pentru chei primare si straine.
+
+4.CREATE INDEX d_tlg_cd_number_fk_i
+ on d_track_listings (cd_number);
+ 
+ >>verific:
+SELECT ucm.index_name, ucm.column_name, ucm.column_position, uix.uniqueness
+FROM user_indexes uix INNER JOIN user_ind_columns ucm ON uix.index_name = ucm.index_name
+WHERE ucm.table_name = 'D_TRACK_LISTINGS' AND column_name = 'CD_NUMBER';
+
+5.
+SELECT ucm.index_name, ucm.column_name, ucm.column_position, uix.uniqueness
+FROM user_indexes uix INNER JOIN user_ind_columns ucm ON uix.index_name = ucm.index_name
+WHERE ucm.table_name = 'D_SONGS';
+
+6.SELECT index_name, table_name,uniqueness  FROM user_indexes  where table_name = 'D_EVENTS';
+
+7.CREATE PUBLIC SYNONYM dj_tracks FOR d_track_listings;
+CREATE SYNONYM dj_tracks FOR d_track_listings;
+
+8.SELECT ucm.index_name, ucm.column_name, ucm.column_position, uix.uniqueness
+FROM user_indexes uix INNER JOIN user_ind_columns ucm ON uix.index_name = ucm.index_name
+WHERE ucm.table_name = 'D_PARTNERS';
+
+>>CREEZ INDEX:
+
+CREATE INDEX d_ptr_last_name_idx
+ON d_partners(LOWER(last_name));
+
+>>ALTER INDEX d_ptr_last_name_idx MONITORING USAGE;
+>>
+SELECT * FROM v$object_usage WHERE index_name = 'D_PTR_LAST_NAME_IDX';
+>>
+SELECT *
+FROM d_partners
+WHERE LOWER(last_name) = 'something';
+>>
+SELECT * FROM v$object_usage WHERE index_name = 'D_PTR_LAST_NAME_IDX';
+>>SI STOP:
+ALTER INDEX d_ptr_last_name_idx NOMONITORING USAGE;
+
+9.CREATE SYNONYM dj_tracks FOR d_track_listings;
+,
+CREATE SYNONYM dj_tracks2 FOR d_track_listings;
+Synonym created.
+SELECT * FROM user_synonyms WHERE table_NAME = UPPER('d_track_listings');
+
+10.DROP SYNONYM dj_tracks2;
+
+SELECT * FROM user_synonyms WHERE table_NAME = UPPER('d_track_listings');
+
+
+
+
+
+
+
+
+
+
+
